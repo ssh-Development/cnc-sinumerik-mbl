@@ -2,7 +2,7 @@
   "name": "cnc-sinumerik-mbl",
   "displayName": "cnc-sinumerik-mbl",
   "description": "VSC Erweiterung für Sinumerik Dateien.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "sshDevelopmentUG",
   "author": {
     "name": "Andreas Herderich",

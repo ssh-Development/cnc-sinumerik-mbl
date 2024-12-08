@@ -93,6 +93,8 @@ export function activate(context: vscode.ExtensionContext) {
 				const mpfPattern = /^%_N_(.*)_MPF/i;
 				const spfPattern = /^%_N_(.*)_SPF/i;
 
+				const toolPattern = /^.*;\s*WERKZEUG\s*:\s*(([1-9][0-9]{5})|([1-9][0-9]{5})\s+(.+))\s*$/i;
+
 				const tNoPattern = /T_NO\s*=\s*([0-9]+)/i;
 				const attNoPattern = /ATT_NO\s*=\s*([0-9]+)/i;
 				const seNoPattern = /SE_NO\s*=\s*([0-9]+)/i;
@@ -123,6 +125,32 @@ export function activate(context: vscode.ExtensionContext) {
 						seNo = parseInt(match[1]);
 					}
 
+					var match = toolPattern.exec(line.text);
+					if (match) {
+						var last = toolCallSymbols.at(-1);
+						if (last) {
+							last.range = new vscode.Range(last.range.start, line.range.start);
+						}
+
+						if (match[2]) {
+							var symbol = new vscode.DocumentSymbol('T' + match[2], '', vscode.SymbolKind.Property, line.range, line.range);
+							toolCallSymbols.push(symbol);
+							var last = arcFileSymbols.at(-1);
+							if (last) {
+								last.children.push(symbol);
+							}
+						}
+
+						if (match[3] && match[4]) {
+							var symbol = new vscode.DocumentSymbol('T' + match[3], match[4], vscode.SymbolKind.Property, line.range, line.range);
+							toolCallSymbols.push(symbol);
+							var last = arcFileSymbols.at(-1);
+							if (last) {
+								last.children.push(symbol);
+							}
+						}
+					}
+
 
 					var match = toolCallPattern.exec(line.text);
 					if (match) {
@@ -131,15 +159,14 @@ export function activate(context: vscode.ExtensionContext) {
 							last.range = new vscode.Range(last.range.start, line.range.start);
 						}
 
-						if(match[1].toUpperCase() != 'L9930')
-						{
+						if (match[1].toUpperCase() != 'L9930') {
 							var symbol = new vscode.DocumentSymbol('T' + tNo, '  ' + attNo + '  ' + seNo.toString().replace('9999999', '') + ' (Handwechsel)', vscode.SymbolKind.Property, line.range, line.range);
 						}
-						else{
+						else {
 							var symbol = new vscode.DocumentSymbol('T' + tNo, '  ' + attNo + '  ' + seNo.toString().replace('9999999', ''), vscode.SymbolKind.Property, line.range, line.range);
 						}
 
-						
+
 						toolCallSymbols.push(symbol);
 						var last = arcFileSymbols.at(-1);
 						if (last) {
