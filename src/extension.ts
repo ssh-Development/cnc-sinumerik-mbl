@@ -95,6 +95,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 				const toolPattern = /^.*;\s*WERKZEUG\s*:\s*(([1-9][0-9]{5})|([1-9][0-9]{5})\s+(.+))\s*$/i;
 
+				const toolInfoPattern = /^.*;\s*WZ(-|_|)INFO\s*:\s*(.+)/i;
+
 				const tNoPattern = /T_NO\s*=\s*([0-9]+)/i;
 				const attNoPattern = /ATT_NO\s*=\s*([0-9]+)/i;
 				const seNoPattern = /SE_NO\s*=\s*([0-9]+)/i;
@@ -133,7 +135,7 @@ export function activate(context: vscode.ExtensionContext) {
 						}
 
 						if (match[2]) {
-							var symbol = new vscode.DocumentSymbol('T' + match[2], '', vscode.SymbolKind.Property, line.range, line.range);
+							var symbol = new vscode.DocumentSymbol('T ' + match[2], '', vscode.SymbolKind.Property, line.range, line.range);
 							toolCallSymbols.push(symbol);
 							var last = arcFileSymbols.at(-1);
 							if (last) {
@@ -142,11 +144,36 @@ export function activate(context: vscode.ExtensionContext) {
 						}
 
 						if (match[3] && match[4]) {
-							var symbol = new vscode.DocumentSymbol('T' + match[3], match[4], vscode.SymbolKind.Property, line.range, line.range);
+							var symbol = new vscode.DocumentSymbol('T ' + match[3], match[4], vscode.SymbolKind.Property, line.range, line.range);
 							toolCallSymbols.push(symbol);
 							var last = arcFileSymbols.at(-1);
 							if (last) {
 								last.children.push(symbol);
+							}
+						}
+
+						if (document.lineCount >= i + 2) {
+							
+							var tempLine = document.lineAt(i + 1);
+							match = toolInfoPattern.exec(tempLine.text);
+							if (match) {
+								
+								var symbol = new vscode.DocumentSymbol('Info', match[2], vscode.SymbolKind.File, tempLine.range, tempLine.range);
+								var last = toolCallSymbols.at(-1);
+								if (last) {
+									last.children.push(symbol);
+								}
+							}
+
+							var tempLine = document.lineAt(i + 2);
+							match = toolInfoPattern.exec(tempLine.text);
+							if (match) {
+								
+								var symbol = new vscode.DocumentSymbol('Info', match[2], vscode.SymbolKind.File, tempLine.range, tempLine.range);
+								var last = toolCallSymbols.at(-1);
+								if (last) {
+									last.children.push(symbol);
+								}
 							}
 						}
 					}
@@ -171,6 +198,31 @@ export function activate(context: vscode.ExtensionContext) {
 						var last = arcFileSymbols.at(-1);
 						if (last) {
 							last.children.push(symbol);
+						}
+
+						if (document.lineCount >= i + 2) {
+							
+							var tempLine = document.lineAt(i + 1);
+							match = toolInfoPattern.exec(tempLine.text);
+							if (match) {
+								
+								var symbol = new vscode.DocumentSymbol('Info', match[2], vscode.SymbolKind.File, tempLine.range, tempLine.range);
+								var last = toolCallSymbols.at(-1);
+								if (last) {
+									last.children.push(symbol);
+								}
+							}
+
+							var tempLine = document.lineAt(i + 2);
+							match = toolInfoPattern.exec(tempLine.text);
+							if (match) {
+								
+								var symbol = new vscode.DocumentSymbol('Info', match[2], vscode.SymbolKind.File, tempLine.range, tempLine.range);
+								var last = toolCallSymbols.at(-1);
+								if (last) {
+									last.children.push(symbol);
+								}
+							}
 						}
 					}
 

@@ -11,4 +11,8 @@ Initial release.
 
 ;WERKZEUG <KWZID> <TNUMMERINFO> hinzugefügt!
 
+### 0.0.3
+
+;WZ-INFO: <INFO> hinzugefügt!
+
 **Enjoy!**
