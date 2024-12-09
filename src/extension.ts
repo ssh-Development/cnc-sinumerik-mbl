@@ -101,13 +101,13 @@ export function activate(context: vscode.ExtensionContext) {
 				const attNoPattern = /ATT_NO\s*=\s*([0-9]+)/i;
 				const seNoPattern = /SE_NO\s*=\s*([0-9]+)/i;
 
+				const infoPattern = /^.*;\s*(.*)/i;
+
 				const toolCallPattern = /(L9920|L9923|L9930)/i;
 
 				var tNo = 0;
 				var attNo = 0;
 				var seNo = 0;
-
-				var nomPosC = 0;
 
 				for (var i = 0; i < document.lineCount; i++) {
 					var line = document.lineAt(i);
@@ -153,11 +153,11 @@ export function activate(context: vscode.ExtensionContext) {
 						}
 
 						if (document.lineCount >= i + 2) {
-							
+
 							var tempLine = document.lineAt(i + 1);
 							match = toolInfoPattern.exec(tempLine.text);
 							if (match) {
-								
+
 								var symbol = new vscode.DocumentSymbol('Info', match[2], vscode.SymbolKind.File, tempLine.range, tempLine.range);
 								var last = toolCallSymbols.at(-1);
 								if (last) {
@@ -168,7 +168,7 @@ export function activate(context: vscode.ExtensionContext) {
 							var tempLine = document.lineAt(i + 2);
 							match = toolInfoPattern.exec(tempLine.text);
 							if (match) {
-								
+
 								var symbol = new vscode.DocumentSymbol('Info', match[2], vscode.SymbolKind.File, tempLine.range, tempLine.range);
 								var last = toolCallSymbols.at(-1);
 								if (last) {
@@ -187,10 +187,10 @@ export function activate(context: vscode.ExtensionContext) {
 						}
 
 						if (match[1].toUpperCase() != 'L9930') {
-							var symbol = new vscode.DocumentSymbol('T' + tNo, '  ' + attNo + '  ' + seNo.toString().replace('9999999', '') + ' (Handwechsel)', vscode.SymbolKind.Property, line.range, line.range);
+							var symbol = new vscode.DocumentSymbol('T ' + tNo, '- ' + attNo + ' - ' + seNo.toString().replace('9999999', '') + ' (Handwechsel)', vscode.SymbolKind.Property, line.range, line.range);
 						}
 						else {
-							var symbol = new vscode.DocumentSymbol('T' + tNo, '  ' + attNo + '  ' + seNo.toString().replace('9999999', ''), vscode.SymbolKind.Property, line.range, line.range);
+							var symbol = new vscode.DocumentSymbol('T ' + tNo, '- ' + attNo + ' - ' + seNo.toString().replace('9999999', ''), vscode.SymbolKind.Property, line.range, line.range);
 						}
 
 
@@ -201,11 +201,11 @@ export function activate(context: vscode.ExtensionContext) {
 						}
 
 						if (document.lineCount >= i + 2) {
-							
+
 							var tempLine = document.lineAt(i + 1);
 							match = toolInfoPattern.exec(tempLine.text);
 							if (match) {
-								
+
 								var symbol = new vscode.DocumentSymbol('Info', match[2], vscode.SymbolKind.File, tempLine.range, tempLine.range);
 								var last = toolCallSymbols.at(-1);
 								if (last) {
@@ -216,7 +216,7 @@ export function activate(context: vscode.ExtensionContext) {
 							var tempLine = document.lineAt(i + 2);
 							match = toolInfoPattern.exec(tempLine.text);
 							if (match) {
-								
+
 								var symbol = new vscode.DocumentSymbol('Info', match[2], vscode.SymbolKind.File, tempLine.range, tempLine.range);
 								var last = toolCallSymbols.at(-1);
 								if (last) {
@@ -247,9 +247,22 @@ export function activate(context: vscode.ExtensionContext) {
 						}
 
 						var spfName = match[1];
-						var symbol = new vscode.DocumentSymbol(spfName.replaceAll('_', ' '), '', vscode.SymbolKind.Module, line.range, line.range)
-						symbols.push(symbol);
-						arcFileSymbols.push(symbol);
+						var spfInfo = null;
+						if (document.lineCount >= i + 2) {
+							match = infoPattern.exec(document.lineAt(i + 2).text);
+							if (match) { spfInfo = match[1]; }
+						}
+
+						if (spfInfo) {
+							var symbol = new vscode.DocumentSymbol(spfName.replaceAll('_', ' '), spfInfo, vscode.SymbolKind.Module, line.range, line.range)
+							symbols.push(symbol);
+							arcFileSymbols.push(symbol);
+						}
+						else {
+							var symbol = new vscode.DocumentSymbol(spfName.replaceAll('_', ' '), '', vscode.SymbolKind.Module, line.range, line.range)
+							symbols.push(symbol);
+							arcFileSymbols.push(symbol);
+						}
 					}
 
 				}
