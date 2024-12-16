@@ -94,16 +94,14 @@ export function activate(context: vscode.ExtensionContext) {
 				const spfPattern = /^%_N_(.*)_SPF/i;
 
 				const toolPattern = /^.*;\s*WERKZEUG\s*:\s*(([1-9][0-9]{5})|([1-9][0-9]{5})\s+(.+))\s*$/i;
-
-				const toolInfoPattern = /^.*;\s*WZ(-|_|)INFO\s*:\s*(.+)/i;
-
 				const tNoPattern = /T_NO\s*=\s*([0-9]+)/i;
 				const attNoPattern = /ATT_NO\s*=\s*([0-9]+)/i;
 				const seNoPattern = /SE_NO\s*=\s*([0-9]+)/i;
 
 				const infoPattern = /^.*;\s*(.*)/i;
+				const msgPattern = /^.*MSG\s*\(\s*"\s*(.*)\s*"\s*\)/i;
 
-				const toolCallPattern = /(L9920|L9923|L9930)/i;
+				const toolCallPattern = /\s+(L9920|L9923|L9930)(;|\s+)/i;
 
 				var tNo = 0;
 				var attNo = 0;
@@ -151,31 +149,6 @@ export function activate(context: vscode.ExtensionContext) {
 								last.children.push(symbol);
 							}
 						}
-
-						if (document.lineCount >= i + 2) {
-
-							var tempLine = document.lineAt(i + 1);
-							match = toolInfoPattern.exec(tempLine.text);
-							if (match) {
-
-								var symbol = new vscode.DocumentSymbol('Info', match[2], vscode.SymbolKind.File, tempLine.range, tempLine.range);
-								var last = toolCallSymbols.at(-1);
-								if (last) {
-									last.children.push(symbol);
-								}
-							}
-
-							var tempLine = document.lineAt(i + 2);
-							match = toolInfoPattern.exec(tempLine.text);
-							if (match) {
-
-								var symbol = new vscode.DocumentSymbol('Info', match[2], vscode.SymbolKind.File, tempLine.range, tempLine.range);
-								var last = toolCallSymbols.at(-1);
-								if (last) {
-									last.children.push(symbol);
-								}
-							}
-						}
 					}
 
 
@@ -186,43 +159,17 @@ export function activate(context: vscode.ExtensionContext) {
 							last.range = new vscode.Range(last.range.start, line.range.start);
 						}
 
-						if (match[1].toUpperCase() != 'L9930') {
+						if (match[1].toUpperCase() == 'L9920' || match[1].toUpperCase() == 'L9923') {
 							var symbol = new vscode.DocumentSymbol('T ' + tNo, '- ' + attNo + ' - ' + seNo.toString().replace('9999999', '') + ' (Handwechsel)', vscode.SymbolKind.Property, line.range, line.range);
 						}
 						else {
 							var symbol = new vscode.DocumentSymbol('T ' + tNo, '- ' + attNo + ' - ' + seNo.toString().replace('9999999', ''), vscode.SymbolKind.Property, line.range, line.range);
 						}
 
-
 						toolCallSymbols.push(symbol);
 						var last = arcFileSymbols.at(-1);
 						if (last) {
 							last.children.push(symbol);
-						}
-
-						if (document.lineCount >= i + 2) {
-
-							var tempLine = document.lineAt(i + 1);
-							match = toolInfoPattern.exec(tempLine.text);
-							if (match) {
-
-								var symbol = new vscode.DocumentSymbol('Info', match[2], vscode.SymbolKind.File, tempLine.range, tempLine.range);
-								var last = toolCallSymbols.at(-1);
-								if (last) {
-									last.children.push(symbol);
-								}
-							}
-
-							var tempLine = document.lineAt(i + 2);
-							match = toolInfoPattern.exec(tempLine.text);
-							if (match) {
-
-								var symbol = new vscode.DocumentSymbol('Info', match[2], vscode.SymbolKind.File, tempLine.range, tempLine.range);
-								var last = toolCallSymbols.at(-1);
-								if (last) {
-									last.children.push(symbol);
-								}
-							}
 						}
 					}
 
@@ -251,6 +198,13 @@ export function activate(context: vscode.ExtensionContext) {
 						if (document.lineCount >= i + 2) {
 							match = infoPattern.exec(document.lineAt(i + 2).text);
 							if (match) { spfInfo = match[1]; }
+						}
+
+						if (!spfInfo) {
+							if (document.lineCount >= i + 2) {
+								match = msgPattern.exec(document.lineAt(i + 2).text);
+								if (match) { spfInfo = match[1]; }
+							}
 						}
 
 						if (spfInfo) {
