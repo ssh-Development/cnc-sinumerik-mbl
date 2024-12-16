@@ -1,9 +1,21 @@
 # Change Log
 
-All notable changes to the "cnc-sinumerik-mbl" extension will be documented in this file.
+### 0.0.1
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+Initial release.
 
-## [Unreleased]
+### 0.0.2
 
-- Initial release
+;WERKZEUG -KWZID- -TNUMMERINFO- hinzugefügt!
+
+### 0.0.3
+
+;WZ-INFO: -INFO- hinzugefügt!
+
+### 0.0.4
+
+SPF INFO hinzugefügt!
+
+### 0.0.4
+
+MSG("") INFO hinzugefügt!
