@@ -101,7 +101,7 @@ export function activate(context: vscode.ExtensionContext) {
 				const infoPattern = /^.*;\s*(.*)/i;
 				const msgPattern = /^.*MSG\s*\(\s*"\s*(.*)\s*"\s*\)/i;
 
-				const toolCallPattern = /\s+(L9920|L9923|L9930)(;|\s+)/i;
+				const toolCallPattern = /\s+(L9920|L9923|L9930)/i;
 
 				var tNo = 0;
 				var attNo = 0;
@@ -160,7 +160,7 @@ export function activate(context: vscode.ExtensionContext) {
 						}
 
 						if (match[1].toUpperCase() == 'L9920' || match[1].toUpperCase() == 'L9923') {
-							var symbol = new vscode.DocumentSymbol('T ' + tNo, '- ' + attNo + ' - ' + seNo.toString().replace('9999999', '') + ' (Handwechsel)', vscode.SymbolKind.Property, line.range, line.range);
+							var symbol = new vscode.DocumentSymbol('T ' + tNo, '- ' + attNo + ' - ' + seNo.toString().replace('9999999', '') + ' - (Hand)', vscode.SymbolKind.Property, line.range, line.range);
 						}
 						else {
 							var symbol = new vscode.DocumentSymbol('T ' + tNo, '- ' + attNo + ' - ' + seNo.toString().replace('9999999', ''), vscode.SymbolKind.Property, line.range, line.range);

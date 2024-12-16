@@ -19,3 +19,7 @@ SPF INFO hinzugefügt!
 ### 0.0.4
 
 MSG("") INFO hinzugefügt!
+
+### 0.0.6
+
+Diverse kleinigkeiten!

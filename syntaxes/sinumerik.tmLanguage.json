@@ -38,6 +38,10 @@
                     "name": "comment.sinumerik",
                     "begin": "\\s*;(?!\\$)",
                     "end": "\\n"
+                },
+                {
+                    "name": "comment.sinumerik",
+                    "match": "\".+\""
                 }
             ]
         },
@@ -64,12 +68,20 @@
                     "name": "keyword.control.sinumerik"
                 },
                 {
-                    "match": "\\b(SUPA|TRANS|TRAFOOF|TRAORI|CDON|ROT|BLUM|MSG)\\b",
+                    "match": "\\b(SUPA|TRANS|TRAFOOF|TRAORI|CDON|ROT|BLUM|MSG|MCALL)\\b",
                     "name": "keyword.control.sinumerik"
                 },
                 {
-                    "match": "(EXTCALL)",
-                    "name": "invalid.sinumerik"
+                    "match": "\\bCYCLE\\d+\\b",
+                    "name": "keyword.control.sinumerik"
+                },
+                {
+                    "match": "\\(",
+                    "name": "keyword.control.sinumerik"
+                },
+                {
+                    "match": "\\)",
+                    "name": "keyword.control.sinumerik"
                 },
                 {
                     "match": "\\b(DISPLOF|SBLOF|CALL|STOPRE|INT|REAL|CHAR|STRING|FRAME|DEF|PROC|RET|WHEN|WHENEVER|EVERY|DO|TRUE|FALSE)\\b",
