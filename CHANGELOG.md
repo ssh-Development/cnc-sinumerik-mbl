@@ -28,3 +28,7 @@ Diverse kleinigkeiten!
 
 Sprung zum Unterprogramm hinzugefügt!
 MSG Info 2 Zeilen nach unterprogramm!
+
+### 0.0.8
+
+Diagnistics hinzugefügt!
