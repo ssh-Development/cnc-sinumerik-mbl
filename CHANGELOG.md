@@ -23,3 +23,8 @@ MSG("") INFO hinzugefügt!
 ### 0.0.6
 
 Diverse kleinigkeiten!
+
+### 0.0.7
+
+Sprung zum Unterprogramm hinzugefügt!
+MSG Info 2 Zeilen nach unterprogramm!

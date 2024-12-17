@@ -81,7 +81,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}));
 
-	context.subscriptions.push(vscode.languages.registerDocumentSymbolProvider("sinumerik", {
+	context.subscriptions.push(vscode.languages.registerDocumentSymbolProvider('sinumerik', {
 		provideDocumentSymbols(document: vscode.TextDocument,
 			token: vscode.CancellationToken): Thenable<vscode.DocumentSymbol[]> {
 			return new Promise((resolve, reject) => {
@@ -207,6 +207,13 @@ export function activate(context: vscode.ExtensionContext) {
 							}
 						}
 
+						if (!spfInfo) {
+							if (document.lineCount >= i + 3) {
+								match = msgPattern.exec(document.lineAt(i + 3).text);
+								if (match) { spfInfo = match[1]; }
+							}
+						}
+
 						if (spfInfo) {
 							var symbol = new vscode.DocumentSymbol(spfName.replaceAll('_', ' '), spfInfo, vscode.SymbolKind.Module, line.range, line.range)
 							symbols.push(symbol);
@@ -223,6 +230,30 @@ export function activate(context: vscode.ExtensionContext) {
 
 				resolve(symbols);
 			});
+		}
+	}));
+
+	context.subscriptions.push(vscode.languages.registerDefinitionProvider('sinumerik', {
+		provideDefinition(document: vscode.TextDocument,
+			position: vscode.Position, token: vscode.CancellationToken): Thenable<vscode.Location> {
+			return new Promise((resolve, reject) => {
+				const range = document.getWordRangeAtPosition(position);
+				const word = document.getText(range);
+
+				if(/L\d+/i.test(word))
+				{
+					const pattern = new RegExp('%_N_' + word.toUpperCase() + '_SPF', 'i');
+					for (var i = 0; i < document.lineCount; i++) {
+						var line = document.lineAt(i);
+
+						if(line.text.match(pattern))
+						{
+							resolve(new vscode.Location(document.uri, line.range))
+						}
+					}
+				}
+
+			})
 		}
 	}));
 
