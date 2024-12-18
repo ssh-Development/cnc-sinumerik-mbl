@@ -3,9 +3,12 @@
 import * as vscode from 'vscode';
 
 let diagnosticCollection: vscode.DiagnosticCollection;
+const config = vscode.workspace.getConfiguration('cnc-sinumerik-mbl');
+
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+
 
 	context.subscriptions.push(vscode.commands.registerCommand('cnc-sinumerik-mbl.activate', () => {
 		var editor = vscode.window.activeTextEditor;
@@ -242,7 +245,7 @@ export function activate(context: vscode.ExtensionContext) {
 				const word = document.getText(range);
 
 				if (/L\d+/i.test(word)) {
-					const pattern = new RegExp('%_N_' + word.toUpperCase() + '_SPF', 'i');
+					const pattern = new RegExp('^%_N_' + word.toUpperCase() + '_SPF', 'i');
 					for (var i = 0; i < document.lineCount; i++) {
 						var line = document.lineAt(i);
 
@@ -282,9 +285,16 @@ function updateDiagnostics(document: vscode.TextDocument, collection: vscode.Dia
 		if (document.languageId == 'sinumerik') {
 			collection.clear();
 			var diagnostics: vscode.Diagnostic[] = [];
-			var spfs: string[] = ['L6','L9930','L9920','L9923'];
+			var spfs: string[] = [];
+			var spfDefinitions =new Map<string, vscode.Range>();
+
+			var includedSpfs = config.get<string[]>('includedSpfs');
+			if (includedSpfs) {
+				spfs = includedSpfs;
+			}
 
 			const spfPattern = /^%_N_(.*)_SPF/i;
+			const spfCallPattern = /^\s*(N\d+|)\s*(MCALL|)\s*(L\d+)/i
 
 			for (var i = 0; i < document.lineCount; i++) {
 				var line = document.lineAt(i);
@@ -292,8 +302,7 @@ function updateDiagnostics(document: vscode.TextDocument, collection: vscode.Dia
 
 				var match = spfPattern.exec(text)
 				if (match) {
-					if(spfs.includes(match[1]))
-					{
+					if (spfs.includes(match[1])) {
 						diagnostics.push({
 							code: undefined,
 							message: 'Unterprogramm ist schon deklariert!',
@@ -303,11 +312,43 @@ function updateDiagnostics(document: vscode.TextDocument, collection: vscode.Dia
 							relatedInformation: undefined
 						});
 					}
-					else{
+					else {
 						spfs.push(match[1]);
+						spfDefinitions.set(match[1], line.range);
 					}
 				}
 			}
+
+			for (var i = 0; i < document.lineCount; i++) {
+				var line = document.lineAt(i);
+				var text = line.text.toUpperCase();
+
+				var match = spfCallPattern.exec(text)
+				if (match) {
+					spfDefinitions.delete(match[3])
+					if (!spfs.includes(match[3])) {
+						diagnostics.push({
+							code: undefined,
+							message: 'Unterprogramm ist nicht vorhanden!',
+							range: line.range,
+							severity: vscode.DiagnosticSeverity.Warning,
+							source: undefined,
+							relatedInformation: undefined
+						});
+					}
+				}
+			}
+
+			spfDefinitions.forEach(element => {
+				diagnostics.push({
+					code: undefined,
+					message: 'Unterprogramm wird nie verwendet!',
+					range: element,
+					severity: vscode.DiagnosticSeverity.Information,
+					source: undefined,
+					relatedInformation: undefined
+				});
+			});
 
 			collection.set(document.uri, diagnostics);
 		} else {

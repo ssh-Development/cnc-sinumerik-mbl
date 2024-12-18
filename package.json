@@ -2,7 +2,7 @@
   "name": "cnc-sinumerik-mbl",
   "displayName": "cnc-sinumerik-mbl",
   "description": "VSC Erweiterung für Sinumerik Dateien.",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "publisher": "sshDevelopmentUG",
   "repository": {
     "url": "https://github.com/ssh-Development/cnc-sinumerik-mbl.git/"
@@ -54,7 +54,8 @@
           "Sinumerik"
         ],
         "extensions": [
-          "*.ARC", "*.arc"
+          "*.ARC",
+          "*.arc"
         ],
         "icon": {
           "dark": "./images/sinumerik.svg",
@@ -70,7 +71,28 @@
         "scopeName": "source.sinumerik",
         "path": "./syntaxes/sinumerik.tmLanguage.json"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Sinumerik",
+      "properties": {
+        "cnc-sinumerik-mbl.includedSpfs": {
+          "type": "array",
+          "title": "Ausgeschlossene Unterprogramme",
+          "description": "Unterprogramme, die nicht in der CNC-Datei beinhaltet sein müssen. (!CaseSensitive)",
+          "default": [
+            "L9923",
+            "L9928",
+            "L9925",
+            "L9927",
+            "L9921",
+            "L9922",
+            "L9958",
+            "L9930",
+            "L6"
+          ]
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",

@@ -32,3 +32,7 @@ MSG Info 2 Zeilen nach unterprogramm!
 ### 0.0.8
 
 Diagnistics hinzugefügt!
+
+### 0.0.9
+
+Diagnistics hinzugefügt!
