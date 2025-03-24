@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { PropertyDefenition } from './toolCallModel';
 
 let diagnosticCollection: vscode.DiagnosticCollection;
 const config = vscode.workspace.getConfiguration('cnc-sinumerik-mbl');
@@ -92,12 +93,11 @@ export function activate(context: vscode.ExtensionContext) {
 				var symbols: vscode.DocumentSymbol[] = [];
 				var arcFileSymbols: vscode.DocumentSymbol[] = [];
 				var toolCallSymbols: vscode.DocumentSymbol[] = [];
-				var nomPosCallSymbols: vscode.DocumentSymbol[] = [];
 
 				const mpfPattern = /^%_N_(.*)_MPF/i;
 				const spfPattern = /^%_N_(.*)_SPF/i;
 
-				const toolPattern = /^.*;\s*WERKZEUG\s*:\s*(([1-9][0-9]{5})|([1-9][0-9]{5})\s+(.+))\s*$/i;
+				const toolPattern = /^\s*WERKZEUG\s*:\s*(([1-9][0-9]{5})|([1-9][0-9]{5})\s+(.+))\s*$/i;
 				const tNoPattern = /T_NO\s*=\s*([0-9]+)/i;
 				const attNoPattern = /ATT_NO\s*=\s*([0-9]+)/i;
 				const seNoPattern = /SE_NO\s*=\s*([0-9]+)/i;
@@ -107,56 +107,72 @@ export function activate(context: vscode.ExtensionContext) {
 
 				const toolCallPattern = /\s+(L9920|L9923|L9930)/i;
 
+				const escapeChar = /^\s*\//i;
+
 				var tNo = 0;
 				var attNo = 0;
 				var seNo = 0;
 
 				for (var i = 0; i < document.lineCount; i++) {
+					var data = document.lineAt(i).text.split(';')
 					var line = document.lineAt(i);
 
-					var match = tNoPattern.exec(line.text);
+					var pgmLine: string = data[0];
+					var pgmComment: string | undefined
+
+					if (data.length > 1) {
+						pgmComment = data[data.length - 1];
+					}
+
+					if (pgmLine.match(escapeChar)) {
+						continue;
+					}
+
+					var match = tNoPattern.exec(pgmLine);
 					if (match) {
 						tNo = parseInt(match[1]);
 					}
 
-					var match = attNoPattern.exec(line.text);
+					var match = attNoPattern.exec(pgmLine);
 					if (match) {
 						attNo = parseInt(match[1]);
 					}
 
-					var match = seNoPattern.exec(line.text);
+					var match = seNoPattern.exec(pgmLine);
 					if (match) {
 						seNo = parseInt(match[1]);
 					}
 
-					var match = toolPattern.exec(line.text);
-					if (match) {
-						var last = toolCallSymbols.at(-1);
-						if (last) {
-							last.range = new vscode.Range(last.range.start, line.range.start);
-						}
-
-						if (match[2]) {
-							var symbol = new vscode.DocumentSymbol('T ' + match[2], '', vscode.SymbolKind.Property, line.range, line.range);
-							toolCallSymbols.push(symbol);
-							var last = arcFileSymbols.at(-1);
+					if (pgmComment) {
+						var match = toolPattern.exec(pgmComment);
+						if (match) {
+							var last = toolCallSymbols.at(-1);
 							if (last) {
-								last.children.push(symbol);
+								last.range = new vscode.Range(last.range.start, line.range.start);
 							}
-						}
 
-						if (match[3] && match[4]) {
-							var symbol = new vscode.DocumentSymbol('T ' + match[3], match[4], vscode.SymbolKind.Property, line.range, line.range);
-							toolCallSymbols.push(symbol);
-							var last = arcFileSymbols.at(-1);
-							if (last) {
-								last.children.push(symbol);
+							if (match[2]) {
+								var symbol = new vscode.DocumentSymbol('T ' + match[2], '', vscode.SymbolKind.Property, line.range, line.range);
+								toolCallSymbols.push(symbol);
+								var last = arcFileSymbols.at(-1);
+								if (last) {
+									last.children.push(symbol);
+								}
+							}
+
+							if (match[3] && match[4]) {
+								var symbol = new vscode.DocumentSymbol('T ' + match[3], match[4], vscode.SymbolKind.Property, line.range, line.range);
+								toolCallSymbols.push(symbol);
+								var last = arcFileSymbols.at(-1);
+								if (last) {
+									last.children.push(symbol);
+								}
 							}
 						}
 					}
 
 
-					var match = toolCallPattern.exec(line.text);
+					var match = toolCallPattern.exec(pgmLine);
 					if (match) {
 						var last = toolCallSymbols.at(-1);
 						if (last) {
@@ -286,7 +302,7 @@ function updateDiagnostics(document: vscode.TextDocument, collection: vscode.Dia
 			collection.clear();
 			var diagnostics: vscode.Diagnostic[] = [];
 			var spfs: string[] = [];
-			var spfDefinitions =new Map<string, vscode.Range>();
+			var spfDefinitions = new Map<string, vscode.Range>();
 
 			var includedSpfs = config.get<string[]>('includedSpfs');
 			if (includedSpfs) {
@@ -296,21 +312,132 @@ function updateDiagnostics(document: vscode.TextDocument, collection: vscode.Dia
 			const spfPattern = /^%_N_(.*)_SPF/i;
 			const spfCallPattern = /^\s*(N\d+|)\s*(MCALL|)\s*(L\d+)/i
 
+			const tNoPattern = /T_NO\s*=\s*([0-9]+)/i;
+			const attNoPattern = /ATT_NO\s*=\s*([0-9]+)/i;
+			const seNoPattern = /SE_NO\s*=\s*([0-9]+)/i;
+
+			const toolCallPattern = /\s+(L9920|L9923|L9930)/i;
+			const toolDefPattern = /\s+L9927/i;
+
+			const escapeChar = /^\s*\//i;
+
+			var tNo: PropertyDefenition | undefined;
+			var attNo: PropertyDefenition | undefined;
+			var seNo: PropertyDefenition | undefined;
+
+			var definedtNo: PropertyDefenition | undefined;
+			var definedattNo: PropertyDefenition | undefined;
+			var definedseNo: PropertyDefenition | undefined;
+
 			for (var i = 0; i < document.lineCount; i++) {
+				var data = document.lineAt(i).text.split(';')
 				var line = document.lineAt(i);
 				var text = line.text.toUpperCase();
+				var pgmLine = data[0].toUpperCase();
+
+				if (pgmLine.match(escapeChar)) {
+					continue;
+				}
+
+				var match = tNoPattern.exec(pgmLine);
+				if (match) {
+					var range = new vscode.Range(i, match.index, i, match.index + match[0].length);
+					tNo = { number: parseInt(match[1]), range: range };
+				}
+
+				var match = attNoPattern.exec(pgmLine);
+				if (match) {
+					var range = new vscode.Range(i, match.index, i, match.index + match[0].length);
+					attNo = { number: parseInt(match[1]), range: range };
+				}
+
+				var match = seNoPattern.exec(pgmLine);
+				if (match) {
+					var range = new vscode.Range(i, match.index, i, match.index + match[0].length);
+					seNo = { number: parseInt(match[1]), range: range };
+				}
+
+				var match = toolCallPattern.exec(pgmLine);
+				if (match) {
+					if (definedtNo && tNo) {
+						if (definedtNo.number != tNo.number) {
+							diagnostics.push({
+								code: undefined,
+								message: 'Falsches Werkzeug vordefiniert!',
+								range: definedtNo.range,
+								severity: vscode.DiagnosticSeverity.Warning,
+								source: 'Augerufenes Werkzeug ist ' + tNo.number + '.',
+								relatedInformation: undefined
+							})
+						}
+
+						definedtNo = undefined;
+					}
+
+					if (definedattNo && attNo) {
+						if (definedattNo.number != attNo.number) {
+							diagnostics.push({
+								code: undefined,
+								message: 'Falsches Aggregat vordefiniert!',
+								range: definedattNo.range,
+								severity: vscode.DiagnosticSeverity.Warning,
+								source: 'Augerufenes Aggregat ist ' + attNo.number + '.',
+								relatedInformation: undefined
+							})
+						}
+
+						definedattNo = undefined;
+					}
+
+					if (definedseNo && seNo) {
+						if (definedseNo.number != seNo.number) {
+							diagnostics.push({
+								code: undefined,
+								message: 'Falscher Adapter vordefiniert!',
+								range: definedseNo.range,
+								severity: vscode.DiagnosticSeverity.Warning,
+								source: 'Augerufener Adapter ist ' + seNo.number + '.',
+								relatedInformation: undefined
+							})
+						}
+
+						definedseNo = undefined;
+					}
+				}
+
+				var match = toolDefPattern.exec(pgmLine);
+				if (match) {
+					definedtNo = tNo;
+					definedattNo = attNo;
+					definedseNo = seNo;
+				}
 
 				var match = spfPattern.exec(text)
 				if (match) {
 					if (spfs.includes(match[1])) {
-						diagnostics.push({
-							code: undefined,
-							message: 'Unterprogramm ist schon deklariert!',
-							range: line.range,
-							severity: vscode.DiagnosticSeverity.Error,
-							source: undefined,
-							relatedInformation: undefined
-						});
+						if (includedSpfs) {
+							if (!includedSpfs.includes(match[1])) {
+								diagnostics.push({
+									code: undefined,
+									message: 'Unterprogramm ist schon deklariert!',
+									range: line.range,
+									severity: vscode.DiagnosticSeverity.Error,
+									source: undefined,
+									relatedInformation: undefined
+								});
+							}
+
+						}
+						else {
+							diagnostics.push({
+								code: undefined,
+								message: 'Unterprogramm ist schon deklariert!',
+								range: line.range,
+								severity: vscode.DiagnosticSeverity.Error,
+								source: undefined,
+								relatedInformation: undefined
+							});
+						}
 					}
 					else {
 						spfs.push(match[1]);

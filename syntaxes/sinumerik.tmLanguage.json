@@ -41,7 +41,8 @@
                 },
                 {
                     "name": "comment.sinumerik",
-                    "match": "\".+\""
+                     "begin": "\\s*/\\s*(?!\\$)",
+                    "end": "\\n"
                 }
             ]
         },
