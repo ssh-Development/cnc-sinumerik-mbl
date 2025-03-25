@@ -143,6 +143,8 @@ export function activate(context: vscode.ExtensionContext) {
 						seNo = parseInt(match[1]);
 					}
 
+
+
 					if (pgmComment) {
 						var match = toolPattern.exec(pgmComment);
 						if (match) {
@@ -152,21 +154,35 @@ export function activate(context: vscode.ExtensionContext) {
 							}
 
 							if (match[2]) {
-								var symbol = new vscode.DocumentSymbol('T ' + match[2], '', vscode.SymbolKind.Property, line.range, line.range);
-								toolCallSymbols.push(symbol);
+								var name = 'T ' + match[2];
+								var symbol = new vscode.DocumentSymbol(name, '', vscode.SymbolKind.Property, line.range, line.range);
 								var last = arcFileSymbols.at(-1);
 								if (last) {
+									if(name != 'T 0')
+										{
+											if (last.children.find(x => x.name == name)) {
+												symbol.detail += ' - REP';
+											}
+										}
 									last.children.push(symbol);
 								}
+								toolCallSymbols.push(symbol);
 							}
 
 							if (match[3] && match[4]) {
-								var symbol = new vscode.DocumentSymbol('T ' + match[3], match[4], vscode.SymbolKind.Property, line.range, line.range);
-								toolCallSymbols.push(symbol);
+								var name = 'T ' + match[3];
+								var symbol = new vscode.DocumentSymbol(name, match[4], vscode.SymbolKind.Property, line.range, line.range);
 								var last = arcFileSymbols.at(-1);
 								if (last) {
+									if(name != 'T 0')
+									{
+										if (last.children.find(x => x.name == name)) {
+											symbol.detail += ' - REP';
+										}
+									}
 									last.children.push(symbol);
 								}
+								toolCallSymbols.push(symbol);
 							}
 						}
 					}
@@ -179,18 +195,26 @@ export function activate(context: vscode.ExtensionContext) {
 							last.range = new vscode.Range(last.range.start, line.range.start);
 						}
 
+						var name = 'T ' + tNo;
+
 						if (match[1].toUpperCase() == 'L9920' || match[1].toUpperCase() == 'L9923') {
-							var symbol = new vscode.DocumentSymbol('T ' + tNo, '- ' + attNo + ' - ' + seNo.toString().replace('9999999', '') + ' - (Hand)', vscode.SymbolKind.Property, line.range, line.range);
+							var symbol = new vscode.DocumentSymbol(name, '- ' + attNo + ' - ' + seNo.toString().replace('9999999', '') + ' - (Hand)', vscode.SymbolKind.Property, line.range, line.range);
 						}
 						else {
-							var symbol = new vscode.DocumentSymbol('T ' + tNo, '- ' + attNo + ' - ' + seNo.toString().replace('9999999', ''), vscode.SymbolKind.Property, line.range, line.range);
+							var symbol = new vscode.DocumentSymbol(name, '- ' + attNo + ' - ' + seNo.toString().replace('9999999', ''), vscode.SymbolKind.Property, line.range, line.range);
 						}
 
-						toolCallSymbols.push(symbol);
 						var last = arcFileSymbols.at(-1);
 						if (last) {
+							if(name != 'T 0')
+								{
+									if (last.children.find(x => x.name == name)) {
+										symbol.detail += ' - REP';
+									}
+								}
 							last.children.push(symbol);
 						}
+						toolCallSymbols.push(symbol);
 					}
 
 					var match = mpfPattern.exec(line.text);

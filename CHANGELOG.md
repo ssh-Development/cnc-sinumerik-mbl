@@ -35,4 +35,13 @@ Diagnistics hinzugefügt!
 
 ### 0.0.9
 
-Diagnistics hinzugefügt!
+Diagnistics verbessert!
+
+### 0.0.10
+
+Diagnistics verbessert! 
+Verangewählte Werkzeuge werden nun überprüft!
+
+### 0.0.11
+
+REP für Wiederholwerkzeuge hinzugefügt!
