@@ -20,6 +20,49 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.languages.setTextDocumentLanguage(editor.document, "sinumerik");
 	}));
 
+	context.subscriptions.push(vscode.commands.registerCommand('cnc-sinumerik-mbl.round', async () => {
+		var editor = vscode.window.activeTextEditor;
+		if (!editor) {
+			return; // No open text editor
+		}
+
+		var document = editor.document;
+		var counter = 0;
+
+		const escapeChar = /^\s*\//i;
+		const digitsPattern = /[0-9]*\.[0-9]{3}[0-9]+/;
+
+		editor.edit(eb => {
+			for (var i = 0; i < document.lineCount; i++) {
+				var data = document.lineAt(i).text.split(';')
+				var line = document.lineAt(i);
+
+				var pgmLine: string = data[0];
+				var pgmComment: string | undefined
+
+				if (data.length > 1) {
+					pgmComment = data[data.length - 1];
+				}
+
+				if (pgmLine.match(escapeChar)) {
+					continue;
+				}
+
+				var match = digitsPattern.exec(pgmLine);
+				if (match) {
+					var range = new vscode.Range(i, match.index, i, match.index + match[0].length);
+					var number = Number.parseFloat(match[0]);
+					var roundedNumber = Math.round(number * 1000) / 1000;
+					eb.replace(range, roundedNumber.toString());
+					counter++;
+				}
+			}
+		});
+
+		vscode.window.showInformationMessage(counter + ' Werte gerundet!');
+
+	}));
+
 	context.subscriptions.push(vscode.commands.registerCommand('cnc-sinumerik-mbl.number', async () => {
 		var editor = vscode.window.activeTextEditor;
 		if (!editor) {
@@ -123,6 +166,9 @@ export function activate(context: vscode.ExtensionContext) {
 					if (data.length > 1) {
 						pgmComment = data[data.length - 1];
 					}
+					else {
+						pgmComment = undefined;
+					}
 
 					if (pgmLine.match(escapeChar)) {
 						continue;
@@ -158,12 +204,11 @@ export function activate(context: vscode.ExtensionContext) {
 								var symbol = new vscode.DocumentSymbol(name, '', vscode.SymbolKind.Property, line.range, line.range);
 								var last = arcFileSymbols.at(-1);
 								if (last) {
-									if(name != 'T 0')
-										{
-											if (last.children.find(x => x.name == name)) {
-												symbol.detail += ' - REP';
-											}
+									if (name != 'T 0') {
+										if (last.children.find(x => x.name == name)) {
+											symbol.detail += ' - REP';
 										}
+									}
 									last.children.push(symbol);
 								}
 								toolCallSymbols.push(symbol);
@@ -174,8 +219,7 @@ export function activate(context: vscode.ExtensionContext) {
 								var symbol = new vscode.DocumentSymbol(name, match[4], vscode.SymbolKind.Property, line.range, line.range);
 								var last = arcFileSymbols.at(-1);
 								if (last) {
-									if(name != 'T 0')
-									{
+									if (name != 'T 0') {
 										if (last.children.find(x => x.name == name)) {
 											symbol.detail += ' - REP';
 										}
@@ -206,12 +250,11 @@ export function activate(context: vscode.ExtensionContext) {
 
 						var last = arcFileSymbols.at(-1);
 						if (last) {
-							if(name != 'T 0')
-								{
-									if (last.children.find(x => x.name == name)) {
-										symbol.detail += ' - REP';
-									}
+							if (name != 'T 0') {
+								if (last.children.find(x => x.name == name)) {
+									symbol.detail += ' - REP';
 								}
+							}
 							last.children.push(symbol);
 						}
 						toolCallSymbols.push(symbol);

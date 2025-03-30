@@ -2,7 +2,7 @@
   "name": "cnc-sinumerik-mbl",
   "displayName": "cnc-sinumerik-mbl",
   "description": "VSC Erweiterung für Sinumerik Dateien.",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "publisher": "sshDevelopmentUG",
   "repository": {
     "url": "https://github.com/ssh-Development/cnc-sinumerik-mbl.git/"
@@ -31,6 +31,10 @@
         "title": "Sinumerik aktivieren"
       },
       {
+        "command": "cnc-sinumerik-mbl.round",
+        "title": "Koordinaten runden"
+      },
+      {
         "command": "cnc-sinumerik-mbl.number",
         "title": "Satznummerierung"
       }
@@ -38,8 +42,8 @@
     "menus": {
       "editor/context": [
         {
-          "command": "cnc-sinumerik-mbl.activate",
-          "when": "editorLangId != sinumerik"
+          "command": "cnc-sinumerik-mbl.round",
+          "when": "editorLangId == sinumerik"
         },
         {
           "command": "cnc-sinumerik-mbl.number",

@@ -45,3 +45,7 @@ Verangewählte Werkzeuge werden nun überprüft!
 ### 0.0.11
 
 REP für Wiederholwerkzeuge hinzugefügt!
+
+### 0.0.12
+
+Command Runden hinzugefügt!
