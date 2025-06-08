@@ -148,7 +148,7 @@ export function activate(context: vscode.ExtensionContext) {
 				const infoPattern = /^.*;\s*(.*)/i;
 				const msgPattern = /^.*MSG\s*\(\s*"\s*(.*)\s*"\s*\)/i;
 
-				const toolCallPattern = /\s+(L9920|L9923|L9930)/i;
+				const toolCallPattern = /(L9920|L9923|L9930)/i;
 
 				const escapeChar = /^\s*\//i;
 
@@ -383,8 +383,8 @@ function updateDiagnostics(document: vscode.TextDocument, collection: vscode.Dia
 			const attNoPattern = /ATT_NO\s*=\s*([0-9]+)/i;
 			const seNoPattern = /SE_NO\s*=\s*([0-9]+)/i;
 
-			const toolCallPattern = /\s+(L9920|L9923|L9930)/i;
-			const toolDefPattern = /\s+L9927/i;
+			const toolCallPattern = /(L9920|L9923|L9930)/i;
+			const toolDefPattern = /L9927/i;
 
 			const escapeChar = /^\s*\//i;
 
