@@ -66,7 +66,23 @@
           "light": "./images/sinumerik.svg"
         },
         "firstLine": "^%_N_",
-        "configuration": "./language-configuration.json"
+        "configuration": "./sinumerik-configuration.json"
+      },
+      {
+        "id": "sinumerikone",
+        "aliases": [
+          "Sinumerik ONE"
+        ],
+        "extensions": [
+          "*.ARC",
+          "*.arc"
+        ],
+        "icon": {
+          "dark": "./images/sinumerik.svg",
+          "light": "./images/sinumerik.svg"
+        },
+        "firstLine": "^%",
+        "configuration": "./sinumerikone-configuration.json"
       }
     ],
     "grammars": [
@@ -74,6 +90,11 @@
         "language": "sinumerik",
         "scopeName": "source.sinumerik",
         "path": "./syntaxes/sinumerik.tmLanguage.json"
+      },
+      {
+        "language": "sinumerikone",
+        "scopeName": "source.sinumerikone",
+        "path": "./syntaxes/sinumerikone.tmLanguage.json"
       }
     ],
     "configuration": {

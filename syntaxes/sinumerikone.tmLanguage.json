@@ -1,0 +1,218 @@
+{
+    "scopeName": "source.sinumerikone",
+    "name": "Sinumerik ONE CNC Syntax",
+    "patterns": [
+        {
+            "include": "#comments"
+        },
+        {
+            "include": "#speedsfeeds"
+        },
+        {
+            "include": "#prognumbers"
+        },
+        {
+            "include": "#coords"
+        },
+        {
+            "include": "#tools"
+        },
+        {
+            "include": "#modifiers"
+        },
+        {
+            "include": "#macrovars"
+        },
+        {
+            "include": "#keywords"
+        },
+        {
+            "include": "#operators"
+        }
+    ],
+
+    "repository": {
+        "comments": {
+            "patterns": [
+                {
+                    "name": "comment.sinumerikone",
+                    "begin": "\\s*;(?!\\$)",
+                    "end": "\\n"
+                },
+                {
+                    "name": "comment.sinumerikone",
+                     "begin": "\\s*/\\s*(?!\\$)",
+                    "end": "\\n"
+                }
+            ]
+        },
+        "keywords": {
+            "patterns": [
+                {
+                    "match": "[gG][0-9]{1,3}",
+                    "name": "markup.bold.sinumerikone"
+                },
+                {
+                    "match": "[mM][0-9]{1,3}",
+                    "name": "keyword.operator.quantifier.regexp.sinumerikone"
+                },
+                {
+                    "match": "\\b(GOTO|GOTOF|GOTOB|IF|ELSE|ENDIF|DO|WHILE|END|SWITCH|CASE|OF)\\b",
+                    "name": "keyword.control.sinumerikone"
+                },
+                {
+                    "match": "\\b(EQ|NE|LT|GT|LE|GE|AND|OR|XOR|B_AND|B_OR|B_XOR|NOT)\\b",
+                    "name": "keyword.control.sinumerikone"
+                },
+                {
+                    "match": "\\b(TRUE|FALSE)\\b",
+                    "name": "keyword.control.sinumerikone"
+                },
+                {
+                    "match": "\\b(SUPA|TRANS|TRAFOOF|TRAORI|CDON|ROT|BLUM|MSG|MCALL)\\b",
+                    "name": "keyword.control.sinumerikone"
+                },
+                {
+                    "match": "\\bCYCLE\\d+\\b",
+                    "name": "keyword.control.sinumerikone"
+                },
+                {
+                    "match": "\\(",
+                    "name": "keyword.control.sinumerikone"
+                },
+                {
+                    "match": "\\)",
+                    "name": "keyword.control.sinumerikone"
+                },
+                {
+                    "match": "\\b(DISPLOF|SBLOF|CALL|STOPRE|INT|REAL|CHAR|STRING|FRAME|DEF|PROC|RET|WHEN|WHENEVER|EVERY|DO|TRUE|FALSE)\\b",
+					"name": "entity.name.tag.sinumerikone"
+				}
+            ]
+        },
+        "operators": {
+            "patterns": [
+                {
+                    "match": "(SIN)|(COS)|(TAN)|(ASIN)|(ACOS)|(ATAN)|(LN)|(SQRT)|(MOD)|(EXP)|(TRUNC)|(POT)",
+                    "name": "support.constant.math.sinumerikone"
+                },
+                {
+                    "match": "(FIX)|(FUP)|(ROUND)|(ABS)",
+                    "name": "support.constant.math.sinumerikone"
+                },
+                {
+                    "match": "(\\+)|(\\*)|(\\/)|(\\*\\*)|(\\-)|(==)|(<>)|(>=)|(<=)|(<)|(>)|(=)",
+                    "name": "support.constant.math.sinumerikone"
+                },
+                {
+                    "match": "(\\-)",
+                    "name": "invalid.sinumerikone"
+                },
+                {
+                    "match":"\\b(FINEMI_.*)|(HALFM.*)|(FASTM.*)",
+                    "name":"keyword.control.sinumerikone"
+                },
+                {
+					"name": "string.regexp.sinumerikone",
+					"match": "(\\$)[_a-zA-Z]+"
+				},
+				{
+					"name": "entity.name.class.sinumerikone",
+					"match": "[_a-zA-Z]+[_a-zA-Z]+"
+				},
+				{
+					"name": "string.regexp.sinumerikone",
+					"match": "[_a-zA-Z]+"
+				}
+            ]
+        },
+        "speedsfeeds": {
+            "patterns": [
+                {
+                    "match": "([sS])(?=-|\\d|\\[|#)-?(?:\\d+(?:\\.\\d*)?)?",
+                    "name": "constant.language.sinumerikone"
+                },
+                {
+                    "match": "([fF])(?=-|\\d|\\[|#)-?(?:\\d+(?:\\.\\d*)?)?",
+                    "name": "constant.language.sinumerikone"
+                }
+            ]
+        },
+        "prognumbers": {
+            "patterns": [
+                {
+                    "match": "[nN][0-9]+",
+                    "name": "constant.numeric.sinumerikone"
+                },
+                {
+                    "match": "[lL][0-9]{1,5}",
+                    "name": "string.regexp.sinumerikone"
+                },
+                {
+                    "match": "[gG][0-3]",
+                    "name": "string.regexp.sinumerikone"
+                },
+                {
+                    "match": "[pP][0-9]{1,5}",
+                    "name": "string.regexp.sinumerikone"
+                }
+            ]
+        },
+        "coords": {
+            "patterns": [
+                {
+                    "match": "([xXyYzZiIjJkKwW])(?=-|\\+|\\d|\\[|#)(-|\\+)?(?:\\d+(?:\\.\\d*)?)?",
+                    "name": "string.sinumerikone"
+                },
+                {
+                    "match": "([aAbBcC])(?=-|\\d|\\[|#)-?(?:\\d+(?:\\.\\d*)?)?",
+                    "name": "constant.character.escape.sinumerikone"
+                }
+            ]
+        },
+        "tools": {
+            "patterns": [
+                {
+                    "match": "([dD])(?=-|\\d|\\[|#)-?(?:\\d+(?:\\.\\d*)?)?",
+                    "name": "constant.character.sinumerikone"
+                },
+                {
+                    "match": "([hH])(?=-|\\d|\\[|#)-?(?:\\d+(?:\\.\\d*)?)?",
+                    "name": "constant.character.sinumerikone"
+                },
+                {
+                    "match": "([tT])(?=-|\\d|\\[|#)-?(?:\\d+(?:\\.\\d*)?)?",
+                    "name": "constant.character.sinumerikone"
+                }
+            ]
+        },
+        "modifiers": {
+            "patterns": [
+                {
+                    "match": "([iIjJkK])(?=-|\\d|\\[|#)-?(?:\\d+(?:\\.\\d*)?)?",
+                    "name": "constant.character.escape.sinumerikone"
+                },
+                {
+                    "match": "([qQrR])(?=-|\\d|\\[|#)-?(?:\\d+(?:\\.\\d*)?)?",
+                    "name": "support.constant.math.sinumerikone"
+                }
+            ]
+        },
+        "macrovars": {
+            "patterns": [
+                {
+                    "match": "[#][0-9]+",
+                    "name": "variable.other.sinumerikone"
+                },
+                {
+                    "match":"^%\\w*",
+                    "name": "variable.other.sinumerikone"
+                },
+                {
+                    "match":"^;\\$PATH=\/_N_WKS_DIR\/_N_\\w*",
+                    "name": "variable.other.sinumerikone"
+                }
+            ]
+        }
+    }
+}

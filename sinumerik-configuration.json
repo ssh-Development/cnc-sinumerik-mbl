@@ -1,0 +1,18 @@
+{
+    "comments": {
+        "lineComment": "*"
+    },
+    "autoClosingPairs": [
+        ["(", ")"]
+    ],
+	"autoCloseBefore": ";:.,=}])>` \n\t",
+    "folding": {
+        "markers": {
+            "start": "^%_N_(.*)_(MPF|SPF)",
+            "end": "^\\s*(N\\d+\\s*|)(RET|M17|M30)"
+        }
+    },
+    "surroundingPairs": [
+        ["(", ")"]
+    ]
+}
