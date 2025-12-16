@@ -11,13 +11,22 @@ const config = vscode.workspace.getConfiguration('cnc-sinumerik-mbl');
 export function activate(context: vscode.ExtensionContext) {
 
 
-	context.subscriptions.push(vscode.commands.registerCommand('cnc-sinumerik-mbl.activate', () => {
+	context.subscriptions.push(vscode.commands.registerCommand('cnc-sinumerik-mbl.activateSinumerik', () => {
 		var editor = vscode.window.activeTextEditor;
 		if (!editor) {
 			return; // No open text editor
 		}
 
 		vscode.languages.setTextDocumentLanguage(editor.document, "sinumerik");
+	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand('cnc-sinumerik-mbl.activateSinumerikone', () => {
+		var editor = vscode.window.activeTextEditor;
+		if (!editor) {
+			return; // No open text editor
+		}
+
+		vscode.languages.setTextDocumentLanguage(editor.document, "sinumerikone");
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('cnc-sinumerik-mbl.round', async () => {
@@ -34,11 +43,11 @@ export function activate(context: vscode.ExtensionContext) {
 
 		editor.edit(eb => {
 			for (var i = 0; i < document.lineCount; i++) {
-				var data = document.lineAt(i).text.split(';')
+				var data = document.lineAt(i).text.split(';');
 				var line = document.lineAt(i);
 
 				var pgmLine: string = data[0];
-				var pgmComment: string | undefined
+				var pgmComment: string | undefined;
 
 				if (data.length > 1) {
 					pgmComment = data[data.length - 1];
@@ -86,7 +95,7 @@ export function activate(context: vscode.ExtensionContext) {
 			const commentPattern = /^\s*;/;
 			const emptyPattern = /^\s*$/;
 			const startWhitespacePattern = /^\s*/;
-			const lineNumberPattern = /^\s*N\s*[0-9]*\s*/i;
+			const lineNumberPattern = /^\s*N\s*[0-9]+\s*/i;
 
 			editor.edit(eb => {
 				var lineNumber = numberSpan;
@@ -157,11 +166,11 @@ export function activate(context: vscode.ExtensionContext) {
 				var seNo = 0;
 
 				for (var i = 0; i < document.lineCount; i++) {
-					var data = document.lineAt(i).text.split(';')
+					var data = document.lineAt(i).text.split(';');
 					var line = document.lineAt(i);
 
 					var pgmLine: string = data[0];
-					var pgmComment: string | undefined
+					var pgmComment: string | undefined;
 
 					if (data.length > 1) {
 						pgmComment = data[data.length - 1];
@@ -204,8 +213,8 @@ export function activate(context: vscode.ExtensionContext) {
 								var symbol = new vscode.DocumentSymbol(name, '', vscode.SymbolKind.Property, line.range, line.range);
 								var last = arcFileSymbols.at(-1);
 								if (last) {
-									if (name != 'T 0') {
-										if (last.children.find(x => x.name == name)) {
+									if (name !== 'T 0') {
+										if (last.children.find(x => x.name === name)) {
 											symbol.detail += ' - REP';
 										}
 									}
@@ -219,8 +228,8 @@ export function activate(context: vscode.ExtensionContext) {
 								var symbol = new vscode.DocumentSymbol(name, match[4], vscode.SymbolKind.Property, line.range, line.range);
 								var last = arcFileSymbols.at(-1);
 								if (last) {
-									if (name != 'T 0') {
-										if (last.children.find(x => x.name == name)) {
+									if (name !== 'T 0') {
+										if (last.children.find(x => x.name === name)) {
 											symbol.detail += ' - REP';
 										}
 									}
@@ -241,7 +250,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 						var name = 'T ' + tNo;
 
-						if (match[1].toUpperCase() == 'L9920' || match[1].toUpperCase() == 'L9923') {
+						if (match[1].toUpperCase() === 'L9920' || match[1].toUpperCase() === 'L9923') {
 							var symbol = new vscode.DocumentSymbol(name, '- ' + attNo + ' - ' + seNo.toString().replace('9999999', '') + ' - (Hand)', vscode.SymbolKind.Property, line.range, line.range);
 						}
 						else {
@@ -250,8 +259,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 						var last = arcFileSymbols.at(-1);
 						if (last) {
-							if (name != 'T 0') {
-								if (last.children.find(x => x.name == name)) {
+							if (name !== 'T 0') {
+								if (last.children.find(x => x.name === name)) {
 									symbol.detail += ' - REP';
 								}
 							}
@@ -268,7 +277,7 @@ export function activate(context: vscode.ExtensionContext) {
 						}
 
 						var mpfName = match[1];
-						var symbol = new vscode.DocumentSymbol(mpfName.replaceAll('_', ' '), '', vscode.SymbolKind.Field, line.range, line.range)
+						var symbol = new vscode.DocumentSymbol(mpfName.replaceAll('_', ' '), '', vscode.SymbolKind.Field, line.range, line.range);
 						symbols.push(symbol);
 						arcFileSymbols.push(symbol);
 					}
@@ -302,12 +311,223 @@ export function activate(context: vscode.ExtensionContext) {
 						}
 
 						if (spfInfo) {
-							var symbol = new vscode.DocumentSymbol(spfName.replaceAll('_', ' '), spfInfo, vscode.SymbolKind.Module, line.range, line.range)
+							var symbol = new vscode.DocumentSymbol(spfName.replaceAll('_', ' '), spfInfo, vscode.SymbolKind.Module, line.range, line.range);
 							symbols.push(symbol);
 							arcFileSymbols.push(symbol);
 						}
 						else {
-							var symbol = new vscode.DocumentSymbol(spfName.replaceAll('_', ' '), '', vscode.SymbolKind.Module, line.range, line.range)
+							var symbol = new vscode.DocumentSymbol(spfName.replaceAll('_', ' '), '', vscode.SymbolKind.Module, line.range, line.range);
+							symbols.push(symbol);
+							arcFileSymbols.push(symbol);
+						}
+					}
+
+				}
+
+				resolve(symbols);
+			});
+		}
+	}));
+
+	context.subscriptions.push(vscode.languages.registerDocumentSymbolProvider('sinumerikone', {
+		provideDocumentSymbols(document: vscode.TextDocument,
+			token: vscode.CancellationToken): Thenable<vscode.DocumentSymbol[]> {
+			return new Promise((resolve, reject) => {
+				var symbols: vscode.DocumentSymbol[] = [];
+				var arcFileSymbols: vscode.DocumentSymbol[] = [];
+				var toolCallSymbols: vscode.DocumentSymbol[] = [];
+				var groupSymbol: vscode.DocumentSymbol | undefined;
+
+				const mpfPattern = /^%(.*).MPF/i;
+				const spfPattern = /^%(.*).SPF/i;
+
+				//N390 GROUP_BEGIN(0,"OPERATIONSLISTE",0,0)
+				const groupBeginPattern = /^\s*(N\s*[0-9]+|)\s*GROUP_BEGIN\s*\(\d*,"(.*)",\d*,\d*\)/i;
+
+				//N400 GROUP_END(0,0)
+				const groupEndPattern = /^\s*(N\s*[0-9]+|)\s*GROUP_END\s*\(\d*,\d*\)/i;
+
+				const toolPattern = /^\s*WERKZEUG\s*:\s*(([1-9][0-9]{5})|([1-9][0-9]{5})\s+(.+))\s*$/i;
+				const tNoPattern = /T\s*=\s*("|)([0-9]+)("|)/i;
+
+				const infoPattern = /^.*;\s*(.*)/i;
+				const msgPattern = /^.*MSG\s*\(\s*"\s*(.*)\s*"\s*\)/i;
+
+				const toolCallPattern = /M6/i;
+
+				const escapeChar = /^\s*\//i;
+
+				var tNo = '';
+
+				for (var i = 0; i < document.lineCount; i++) {
+					var data = document.lineAt(i).text.split(';');
+					var line = document.lineAt(i);
+
+					var pgmLine: string = data[0];
+					var pgmComment: string | undefined;
+
+					if (data.length > 1) {
+						pgmComment = data[data.length - 1];
+					}
+					else {
+						pgmComment = undefined;
+					}
+
+					if (pgmLine.match(escapeChar)) {
+						continue;
+					}
+
+					var match = tNoPattern.exec(pgmLine);
+					if (match) {
+						tNo = match[2];
+					}
+
+					if (pgmComment) {
+						var match = toolPattern.exec(pgmComment);
+						if (match) {
+							var last = toolCallSymbols.at(-1);
+							if (last) {
+								last.range = new vscode.Range(last.range.start, line.range.start);
+							}
+
+							if (match[2]) {
+								var name = 'T ' + match[2];
+								var symbol = new vscode.DocumentSymbol(name, '', vscode.SymbolKind.Property, line.range, line.range);
+								var last = arcFileSymbols.at(-1);
+								if (last) {
+									if (name !== 'T 0') {
+										if (last.children.find(x => x.name === name)) {
+											symbol.detail += ' - REP';
+										}
+									}
+									last.children.push(symbol);
+								}
+								toolCallSymbols.push(symbol);
+							}
+
+							if (match[3] && match[4]) {
+								var name = 'T ' + match[3];
+								var symbol = new vscode.DocumentSymbol(name, match[4], vscode.SymbolKind.Property, line.range, line.range);
+								var last = arcFileSymbols.at(-1);
+								if (last) {
+									if (name !== 'T 0') {
+										if (last.children.find(x => x.name === name)) {
+											symbol.detail += ' - REP';
+										}
+									}
+									last.children.push(symbol);
+								}
+								toolCallSymbols.push(symbol);
+							}
+						}
+					}
+
+
+					var match = toolCallPattern.exec(pgmLine);
+					if (match) {
+						var last = toolCallSymbols.at(-1);
+						if (last) {
+							last.range = new vscode.Range(last.range.start, line.range.start);
+						}
+
+						var name = 'T ' + tNo;
+						var symbol = new vscode.DocumentSymbol(name, '', vscode.SymbolKind.Property, line.range, line.range);
+
+						if (groupSymbol) {
+							var last = arcFileSymbols.at(-1);
+							if (last) {
+								if (name !== 'T 0') {
+									if (last.children.find(x => x.name === name)) {
+										symbol.detail += ' - REP';
+									}
+								}
+								groupSymbol.children.push(symbol);
+							}
+						}
+						else {
+							var last = arcFileSymbols.at(-1);
+							if (last) {
+								if (name !== 'T 0') {
+									if (last.children.find(x => x.name === name)) {
+										symbol.detail += ' - REP';
+									}
+								}
+								last.children.push(symbol);
+							}
+						}
+
+
+						toolCallSymbols.push(symbol);
+					}
+
+					var match = groupBeginPattern.exec(pgmLine);
+					if (match) {
+						var name = match[2];
+						var symbol = new vscode.DocumentSymbol(name, '', vscode.SymbolKind.Module, line.range, line.range);
+
+						groupSymbol = symbol;
+					}
+
+					var match = groupEndPattern.exec(pgmLine);
+					if (match) {
+						if (groupSymbol) {
+							groupSymbol.range = new vscode.Range(groupSymbol.range.start, line.range.start);
+
+							var last = arcFileSymbols.at(-1);
+							if (last) {
+								last.children.push(groupSymbol);
+							}
+						}
+					}
+
+					var match = mpfPattern.exec(line.text);
+					if (match) {
+						var last = arcFileSymbols.at(-1);
+						if (last) {
+							last.range = new vscode.Range(last.range.start, line.range.start);
+						}
+
+						var mpfName = match[1];
+						var symbol = new vscode.DocumentSymbol(mpfName.replaceAll('_', ' '), '', vscode.SymbolKind.Field, line.range, line.range);
+						symbols.push(symbol);
+						arcFileSymbols.push(symbol);
+					}
+
+					var match = spfPattern.exec(line.text);
+					if (match) {
+						var last = arcFileSymbols.at(-1);
+						if (last) {
+							last.range = new vscode.Range(last.range.start, line.range.start);
+						}
+
+						var spfName = match[1];
+						var spfInfo = null;
+						if (document.lineCount >= i + 2) {
+							match = infoPattern.exec(document.lineAt(i + 2).text);
+							if (match) { spfInfo = match[1]; }
+						}
+
+						if (!spfInfo) {
+							if (document.lineCount >= i + 2) {
+								match = msgPattern.exec(document.lineAt(i + 2).text);
+								if (match) { spfInfo = match[1]; }
+							}
+						}
+
+						if (!spfInfo) {
+							if (document.lineCount >= i + 3) {
+								match = msgPattern.exec(document.lineAt(i + 3).text);
+								if (match) { spfInfo = match[1]; }
+							}
+						}
+
+						if (spfInfo) {
+							var symbol = new vscode.DocumentSymbol(spfName.replaceAll('_', ' '), spfInfo, vscode.SymbolKind.Module, line.range, line.range);
+							symbols.push(symbol);
+							arcFileSymbols.push(symbol);
+						}
+						else {
+							var symbol = new vscode.DocumentSymbol(spfName.replaceAll('_', ' '), '', vscode.SymbolKind.Module, line.range, line.range);
 							symbols.push(symbol);
 							arcFileSymbols.push(symbol);
 						}
@@ -333,12 +553,34 @@ export function activate(context: vscode.ExtensionContext) {
 						var line = document.lineAt(i);
 
 						if (line.text.match(pattern)) {
-							resolve(new vscode.Location(document.uri, line.range))
+							resolve(new vscode.Location(document.uri, line.range));
 						}
 					}
 				}
 
-			})
+			});
+		}
+	}));
+
+	context.subscriptions.push(vscode.languages.registerDefinitionProvider('sinumerikone', {
+		provideDefinition(document: vscode.TextDocument,
+			position: vscode.Position, token: vscode.CancellationToken): Thenable<vscode.Location> {
+			return new Promise((resolve, reject) => {
+				const range = document.getWordRangeAtPosition(position);
+				const word = document.getText(range);
+
+				if (/L\d+/i.test(word)) {
+					const pattern = new RegExp('^%' + word.toUpperCase() + '.SPF', 'i');
+					for (var i = 0; i < document.lineCount; i++) {
+						var line = document.lineAt(i);
+
+						if (line.text.match(pattern)) {
+							resolve(new vscode.Location(document.uri, line.range));
+						}
+					}
+				}
+
+			});
 		}
 	}));
 
@@ -364,8 +606,8 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 function updateDiagnostics(document: vscode.TextDocument, collection: vscode.DiagnosticCollection): void {
-	if (document)
-		if (document.languageId == 'sinumerik') {
+	if (document) {
+		if (document.languageId === 'sinumerik') {
 			collection.clear();
 			var diagnostics: vscode.Diagnostic[] = [];
 			var spfs: string[] = [];
@@ -377,7 +619,7 @@ function updateDiagnostics(document: vscode.TextDocument, collection: vscode.Dia
 			}
 
 			const spfPattern = /^%_N_(.*)_SPF/i;
-			const spfCallPattern = /^\s*(N\d+|)\s*(MCALL|)\s*(L\d+)/i
+			const spfCallPattern = /^\s*(N\d+|)\s*(MCALL|)\s*(L\d+)/i;
 
 			const tNoPattern = /T_NO\s*=\s*([0-9]+)/i;
 			const attNoPattern = /ATT_NO\s*=\s*([0-9]+)/i;
@@ -397,7 +639,7 @@ function updateDiagnostics(document: vscode.TextDocument, collection: vscode.Dia
 			var definedseNo: PropertyDefenition | undefined;
 
 			for (var i = 0; i < document.lineCount; i++) {
-				var data = document.lineAt(i).text.split(';')
+				var data = document.lineAt(i).text.split(';');
 				var line = document.lineAt(i);
 				var text = line.text.toUpperCase();
 				var pgmLine = data[0].toUpperCase();
@@ -427,7 +669,7 @@ function updateDiagnostics(document: vscode.TextDocument, collection: vscode.Dia
 				var match = toolCallPattern.exec(pgmLine);
 				if (match) {
 					if (definedtNo && tNo) {
-						if (definedtNo.number != tNo.number) {
+						if (definedtNo.number !== tNo.number) {
 							diagnostics.push({
 								code: undefined,
 								message: 'Falsches Werkzeug vordefiniert!',
@@ -435,14 +677,14 @@ function updateDiagnostics(document: vscode.TextDocument, collection: vscode.Dia
 								severity: vscode.DiagnosticSeverity.Warning,
 								source: 'Augerufenes Werkzeug ist ' + tNo.number + '.',
 								relatedInformation: undefined
-							})
+							});
 						}
 
 						definedtNo = undefined;
 					}
 
 					if (definedattNo && attNo) {
-						if (definedattNo.number != attNo.number) {
+						if (definedattNo.number !== attNo.number) {
 							diagnostics.push({
 								code: undefined,
 								message: 'Falsches Aggregat vordefiniert!',
@@ -450,14 +692,14 @@ function updateDiagnostics(document: vscode.TextDocument, collection: vscode.Dia
 								severity: vscode.DiagnosticSeverity.Warning,
 								source: 'Augerufenes Aggregat ist ' + attNo.number + '.',
 								relatedInformation: undefined
-							})
+							});
 						}
 
 						definedattNo = undefined;
 					}
 
 					if (definedseNo && seNo) {
-						if (definedseNo.number != seNo.number) {
+						if (definedseNo.number !== seNo.number) {
 							diagnostics.push({
 								code: undefined,
 								message: 'Falscher Adapter vordefiniert!',
@@ -465,7 +707,7 @@ function updateDiagnostics(document: vscode.TextDocument, collection: vscode.Dia
 								severity: vscode.DiagnosticSeverity.Warning,
 								source: 'Augerufener Adapter ist ' + seNo.number + '.',
 								relatedInformation: undefined
-							})
+							});
 						}
 
 						definedseNo = undefined;
@@ -479,7 +721,7 @@ function updateDiagnostics(document: vscode.TextDocument, collection: vscode.Dia
 					definedseNo = seNo;
 				}
 
-				var match = spfPattern.exec(text)
+				var match = spfPattern.exec(text);
 				if (match) {
 					if (spfs.includes(match[1])) {
 						if (includedSpfs) {
@@ -493,7 +735,6 @@ function updateDiagnostics(document: vscode.TextDocument, collection: vscode.Dia
 									relatedInformation: undefined
 								});
 							}
-
 						}
 						else {
 							diagnostics.push({
@@ -517,9 +758,9 @@ function updateDiagnostics(document: vscode.TextDocument, collection: vscode.Dia
 				var line = document.lineAt(i);
 				var text = line.text.toUpperCase();
 
-				var match = spfCallPattern.exec(text)
+				var match = spfCallPattern.exec(text);
 				if (match) {
-					spfDefinitions.delete(match[3])
+					spfDefinitions.delete(match[3]);
 					if (!spfs.includes(match[3])) {
 						diagnostics.push({
 							code: undefined,
@@ -548,6 +789,7 @@ function updateDiagnostics(document: vscode.TextDocument, collection: vscode.Dia
 		} else {
 			collection.clear();
 		}
+	}
 }
 
 // This method is called when your extension is deactivated

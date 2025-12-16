@@ -5,14 +5,16 @@
   "autoClosingPairs": [["(", ")"]],
   "autoCloseBefore": ";:.,=}])>` \n\t",
   "folding": {
-    "markers": {
-      "start": "^%(.*).(MPF|SPF)",
-      "end": "^\\s*(N\\d+\\s*|)(RET|M17|M30)"
-    },
-    "groups": {
-      "start": "^\\s*(N\\d+\\s*|)GROUP_BEGIN",
-      "end": "^\\s*(N\\d+\\s*|)GROUP_END"
-    }
+    "markers": [
+      {
+        "start": "^%(.*).(MPF|SPF)",
+        "end": "^\\s*(N\\d+\\s*|)(RET|M17|M30)"
+      },
+      {
+        "start": "^\\s*(N\\s*[0-9]+|)\\s*GROUP_BEGIN",
+        "end": "^\\s*(N\\s*[0-9]+|)\\s*GROUP_END"
+      }
+    ]
   },
   "surroundingPairs": [["(", ")"]]
 }

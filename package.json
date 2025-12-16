@@ -2,7 +2,7 @@
   "name": "cnc-sinumerik-mbl",
   "displayName": "cnc-sinumerik-mbl",
   "description": "VSC Erweiterung für Sinumerik Dateien.",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "publisher": "sshDevelopmentUG",
   "repository": {
     "url": "https://github.com/ssh-Development/cnc-sinumerik-mbl.git/"
@@ -27,8 +27,12 @@
   "contributes": {
     "commands": [
       {
-        "command": "cnc-sinumerik-mbl.activate",
+        "command": "cnc-sinumerik-mbl.activateSinumerik",
         "title": "Sinumerik aktivieren"
+      },
+      {
+        "command": "cnc-sinumerik-mbl.activateSinumerikone",
+        "title": "Sinumerik ONE aktivieren"
       },
       {
         "command": "cnc-sinumerik-mbl.round",
@@ -41,6 +45,14 @@
     ],
     "menus": {
       "editor/context": [
+        {
+          "command": "cnc-sinumerik-mbl.activateSinumerik",
+          "when": "editorLangId != sinumerik"
+        },
+        {
+          "command": "cnc-sinumerik-mbl.activateSinumerikone",
+          "when": "editorLangId != sinumerikone"
+        },
         {
           "command": "cnc-sinumerik-mbl.round",
           "when": "editorLangId == sinumerik"
