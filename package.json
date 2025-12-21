@@ -2,7 +2,7 @@
   "name": "cnc-sinumerik-mbl",
   "displayName": "cnc-sinumerik-mbl",
   "description": "VSC Erweiterung für Sinumerik Dateien.",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "publisher": "sshDevelopmentUG",
   "repository": {
     "url": "https://github.com/ssh-Development/cnc-sinumerik-mbl.git/"
@@ -77,7 +77,7 @@
           "dark": "./images/sinumerik.svg",
           "light": "./images/sinumerik.svg"
         },
-        "firstLine": "^%_N_",
+        "firstLine": "^%.*_[MSPFmspf]{3}$",
         "configuration": "./sinumerik-configuration.json"
       },
       {
@@ -93,7 +93,7 @@
           "dark": "./images/sinumerik.svg",
           "light": "./images/sinumerik.svg"
         },
-        "firstLine": "^%",
+        "firstLine": "^%.*\\.[MSPFmspf]{3}$",
         "configuration": "./sinumerikone-configuration.json"
       }
     ],

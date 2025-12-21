@@ -205,11 +205,11 @@
                     "name": "variable.other.sinumerik"
                 },
                 {
-                    "match":"^%_N_\\w*",
+                    "match":"^%.*_[MSPFmspf]{3}$",
                     "name": "variable.other.sinumerik"
                 },
                 {
-                    "match":"^;\\$PATH=\/_N_WKS_DIR\/_N_\\w*",
+                    "match":"^;\\$PATH=.*_[WPDwpd]{3}$",
                     "name": "variable.other.sinumerik"
                 }
             ]

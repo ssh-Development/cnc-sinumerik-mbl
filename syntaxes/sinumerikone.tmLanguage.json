@@ -205,11 +205,11 @@
                     "name": "variable.other.sinumerikone"
                 },
                 {
-                    "match":"^%\\w*",
+                    "match":"^%.*\\.[MSPFmspf]{3}$",
                     "name": "variable.other.sinumerikone"
                 },
                 {
-                    "match":"^;\\$PATH=\/_N_WKS_DIR\/_N_\\w*",
+                    "match":"^;\\$PATH=.*\\.[WPDwpd]{3}$",
                     "name": "variable.other.sinumerikone"
                 }
             ]
