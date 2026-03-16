@@ -10,7 +10,6 @@ const config = vscode.workspace.getConfiguration('cnc-sinumerik-mbl');
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-
 	context.subscriptions.push(vscode.commands.registerCommand('cnc-sinumerik-mbl.activateSinumerik', () => {
 		var editor = vscode.window.activeTextEditor;
 		if (!editor) {
@@ -154,16 +153,21 @@ export function activate(context: vscode.ExtensionContext) {
 				const attNoPattern = /ATT_NO\s*=\s*([0-9]+)/i;
 				const seNoPattern = /SE_NO\s*=\s*([0-9]+)/i;
 
+				const tPattern = /(^|\s)T\s*([0-9]+|=\s*(".+"))/i;
+
 				const infoPattern = /^.*;\s*(.*)/i;
 				const msgPattern = /^.*MSG\s*\(\s*"\s*(.*)\s*"\s*\)/i;
 
-				const toolCallPattern = /(L9920|L9923|L9930)/i;
+				const customToolCallPattern = /(L9920|L9923|L9930)/i;
+				const toolCallPattern = /(L300|M6)/i;
 
 				const escapeChar = /^\s*\//i;
 
 				var tNo = 0;
 				var attNo = 0;
 				var seNo = 0;
+
+				var t = "";
 
 				for (var i = 0; i < document.lineCount; i++) {
 					var data = document.lineAt(i).text.split(';');
@@ -181,6 +185,16 @@ export function activate(context: vscode.ExtensionContext) {
 
 					if (pgmLine.match(escapeChar)) {
 						continue;
+					}
+
+					var match = tPattern.exec(pgmLine);
+					if (match) {
+						if (match[2].startsWith('=')) {
+							t = match[3];
+						}
+						else {
+							t = match[2];
+						}
 					}
 
 					var match = tNoPattern.exec(pgmLine);
@@ -241,7 +255,7 @@ export function activate(context: vscode.ExtensionContext) {
 					}
 
 
-					var match = toolCallPattern.exec(pgmLine);
+					var match = customToolCallPattern.exec(pgmLine);
 					if (match) {
 						var last = toolCallSymbols.at(-1);
 						if (last) {
@@ -256,6 +270,29 @@ export function activate(context: vscode.ExtensionContext) {
 						else {
 							var symbol = new vscode.DocumentSymbol(name, '- ' + attNo + ' - ' + seNo.toString().replace('9999999', ''), vscode.SymbolKind.Property, line.range, line.range);
 						}
+
+						var last = arcFileSymbols.at(-1);
+						if (last) {
+							if (name !== 'T 0') {
+								if (last.children.find(x => x.name === name)) {
+									symbol.detail += ' - REP';
+								}
+							}
+							last.children.push(symbol);
+						}
+						toolCallSymbols.push(symbol);
+					}
+
+					var match = toolCallPattern.exec(pgmLine);
+					if (match) {
+						var last = toolCallSymbols.at(-1);
+						if (last) {
+							last.range = new vscode.Range(last.range.start, line.range.start);
+						}
+
+						var name = 'T ' + t;
+
+						var symbol = new vscode.DocumentSymbol(name, '', vscode.SymbolKind.Property, line.range, line.range);
 
 						var last = arcFileSymbols.at(-1);
 						if (last) {
