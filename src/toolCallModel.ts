@@ -9,3 +9,13 @@ export class PropertyDefenition {
         this.range = range;
     }
 }
+
+export class StringPropertyDefenition {
+    name: string = "";
+    range!: vscode.Range;
+
+    constructor(name : string, range: vscode.Range) {
+        this.name = name;
+        this.range = range;
+    }
+}

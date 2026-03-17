@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { PropertyDefenition } from './toolCallModel';
+import { StringPropertyDefenition } from './toolCallModel';
 
 let diagnosticCollection: vscode.DiagnosticCollection;
 const config = vscode.workspace.getConfiguration('cnc-sinumerik-mbl');
@@ -187,6 +188,28 @@ export function activate(context: vscode.ExtensionContext) {
 						continue;
 					}
 
+					var match = toolCallPattern.exec(pgmLine);
+					if (match) {
+						var last = toolCallSymbols.at(-1);
+						if (last) {
+							last.range = new vscode.Range(last.range.start, line.range.start);
+						}
+
+						var name = 'T ' + t;
+						var symbol = new vscode.DocumentSymbol(name, '', vscode.SymbolKind.Property, line.range, line.range);
+
+						var last = arcFileSymbols.at(-1);
+						if (last) {
+							if (name !== 'T 0') {
+								if (last.children.find(x => x.name === name)) {
+									symbol.detail += ' - REP';
+								}
+							}
+							last.children.push(symbol);
+						}
+						toolCallSymbols.push(symbol);
+					}
+
 					var match = tPattern.exec(pgmLine);
 					if (match) {
 						if (match[2].startsWith('=')) {
@@ -270,29 +293,6 @@ export function activate(context: vscode.ExtensionContext) {
 						else {
 							var symbol = new vscode.DocumentSymbol(name, '- ' + attNo + ' - ' + seNo.toString().replace('9999999', ''), vscode.SymbolKind.Property, line.range, line.range);
 						}
-
-						var last = arcFileSymbols.at(-1);
-						if (last) {
-							if (name !== 'T 0') {
-								if (last.children.find(x => x.name === name)) {
-									symbol.detail += ' - REP';
-								}
-							}
-							last.children.push(symbol);
-						}
-						toolCallSymbols.push(symbol);
-					}
-
-					var match = toolCallPattern.exec(pgmLine);
-					if (match) {
-						var last = toolCallSymbols.at(-1);
-						if (last) {
-							last.range = new vscode.Range(last.range.start, line.range.start);
-						}
-
-						var name = 'T ' + t;
-
-						var symbol = new vscode.DocumentSymbol(name, '', vscode.SymbolKind.Property, line.range, line.range);
 
 						var last = arcFileSymbols.at(-1);
 						if (last) {
@@ -662,7 +662,11 @@ function updateDiagnostics(document: vscode.TextDocument, collection: vscode.Dia
 			const attNoPattern = /ATT_NO\s*=\s*([0-9]+)/i;
 			const seNoPattern = /SE_NO\s*=\s*([0-9]+)/i;
 
-			const toolCallPattern = /(L9920|L9923|L9930)/i;
+			const tPattern = /(^|\s)T\s*([0-9]+|=\s*(".+"))/i;
+
+			const customToolCallPattern = /(L9920|L9923|L9930)/i;
+			const toolCallPattern = /(L300|M6)/i;
+
 			const toolDefPattern = /L9927/i;
 
 			const escapeChar = /^\s*\//i;
@@ -671,9 +675,13 @@ function updateDiagnostics(document: vscode.TextDocument, collection: vscode.Dia
 			var attNo: PropertyDefenition | undefined;
 			var seNo: PropertyDefenition | undefined;
 
+			var t: StringPropertyDefenition | undefined;
+
 			var definedtNo: PropertyDefenition | undefined;
 			var definedattNo: PropertyDefenition | undefined;
 			var definedseNo: PropertyDefenition | undefined;
+
+			var definedt: StringPropertyDefenition | undefined;
 
 			for (var i = 0; i < document.lineCount; i++) {
 				var data = document.lineAt(i).text.split(';');
@@ -704,6 +712,39 @@ function updateDiagnostics(document: vscode.TextDocument, collection: vscode.Dia
 				}
 
 				var match = toolCallPattern.exec(pgmLine);
+				if (match) {
+					if (definedt && t) {
+						if (definedt.name !== t.name) {
+							diagnostics.push({
+								code: undefined,
+								message: 'Falsches Werkzeug vordefiniert!',
+								range: definedt.range,
+								severity: vscode.DiagnosticSeverity.Warning,
+								source: 'Augerufenes Werkzeug ist ' + t.name + '.',
+								relatedInformation: undefined
+							});
+						}
+
+						definedt = undefined;
+					}
+				}
+
+				var match = tPattern.exec(pgmLine);
+				if (match) {
+					var range = new vscode.Range(i, match.index, i, match.index + match[0].length);
+					if (match[2].startsWith('=')) {
+						t = { name: match[3], range: range };
+					}
+					else {
+						t = { name: match[2], range: range };
+					}
+
+					if (!definedt) {
+						definedt = t;
+					}
+				}
+
+				var match = customToolCallPattern.exec(pgmLine);
 				if (match) {
 					if (definedtNo && tNo) {
 						if (definedtNo.number !== tNo.number) {

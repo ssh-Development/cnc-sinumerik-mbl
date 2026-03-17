@@ -2,7 +2,7 @@
   "name": "cnc-sinumerik-mbl",
   "displayName": "cnc-sinumerik-mbl",
   "description": "VSC Erweiterung für Sinumerik Dateien.",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "publisher": "sshDevelopmentUG",
   "repository": {
     "url": "https://github.com/ssh-Development/cnc-sinumerik-mbl.git/"
@@ -125,7 +125,8 @@
             "L9922",
             "L9958",
             "L9930",
-            "L6"
+            "L6",
+            "L300"
           ]
         }
       }
