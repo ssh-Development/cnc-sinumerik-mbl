@@ -2,7 +2,7 @@
   "name": "cnc-sinumerik-mbl",
   "displayName": "cnc-sinumerik-mbl",
   "description": "VSC Erweiterung für Sinumerik Dateien.",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "publisher": "sshDevelopmentUG",
   "repository": {
     "url": "https://github.com/ssh-Development/cnc-sinumerik-mbl.git/"
@@ -41,6 +41,10 @@
       {
         "command": "cnc-sinumerik-mbl.number",
         "title": "Satznummerierung"
+      },
+      {
+        "command": "cnc-sinumerik-mbl.removeHiddenCode",
+        "title": "Verdeckte Zeichen entfernen"
       }
     ],
     "menus": {
@@ -59,6 +63,10 @@
         },
         {
           "command": "cnc-sinumerik-mbl.number",
+          "when": "editorLangId == sinumerik"
+        },
+        {
+          "command": "cnc-sinumerik-mbl.removeHiddenCode",
           "when": "editorLangId == sinumerik"
         }
       ]
@@ -128,6 +136,12 @@
             "L6",
             "L300"
           ]
+        },
+        "cnc-sinumerik-mbl.toolCallSyntax": {
+          "type": "string",
+          "title": "Werkzeugwechselbefehl",
+          "description": "CNC Unterprogramm oder Befehl der den Werkzeugwechsel einleitet.",
+          "default": "M6"
         }
       }
     }

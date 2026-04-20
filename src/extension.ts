@@ -72,6 +72,33 @@ export function activate(context: vscode.ExtensionContext) {
 
 	}));
 
+	context.subscriptions.push(vscode.commands.registerCommand('cnc-sinumerik-mbl.removeHiddenCode', async () => {
+		var editor = vscode.window.activeTextEditor;
+		if (!editor) {
+			return; // No open text editor
+		}
+
+		var document = editor.document;
+		var counter = 0;
+
+		const hiddenCodePattern = /^;.*\*NCG;\*RO\*;\*HD\*$/i;
+
+		editor.edit(eb => {
+			for (var i = 0; i < document.lineCount; i++) {
+				var line = document.lineAt(i);
+
+				var match = hiddenCodePattern.exec(line.text);
+				if (match) {
+					eb.replace(line.range, ';');
+					counter++;
+				}
+			}
+		});
+
+		vscode.window.showInformationMessage(counter + ' Zeilen entfernt!');
+
+	}));
+
 	context.subscriptions.push(vscode.commands.registerCommand('cnc-sinumerik-mbl.number', async () => {
 		var editor = vscode.window.activeTextEditor;
 		if (!editor) {
@@ -143,11 +170,13 @@ export function activate(context: vscode.ExtensionContext) {
 			token: vscode.CancellationToken): Thenable<vscode.DocumentSymbol[]> {
 			return new Promise((resolve, reject) => {
 				var symbols: vscode.DocumentSymbol[] = [];
+				var arcDirSymbols: vscode.DocumentSymbol[] = [];
 				var arcFileSymbols: vscode.DocumentSymbol[] = [];
 				var toolCallSymbols: vscode.DocumentSymbol[] = [];
 
 				const mpfPattern = /^%_N_(.*)_MPF/i;
 				const spfPattern = /^%_N_(.*)_SPF/i;
+				const dirPattern = /^;\$PATH=(.*)/i;
 
 				const toolPattern = /^\s*WERKZEUG\s*:\s*(([1-9][0-9]{5})|([1-9][0-9]{5})\s+(.+))\s*$/i;
 				const tNoPattern = /T_NO\s*=\s*([0-9]+)/i;
@@ -160,7 +189,9 @@ export function activate(context: vscode.ExtensionContext) {
 				const msgPattern = /^.*MSG\s*\(\s*"\s*(.*)\s*"\s*\)/i;
 
 				const customToolCallPattern = /(L9920|L9923|L9930)/i;
-				const toolCallPattern = /(L300|M6)/i;
+
+				var toolCallSyntax = config.get<string>('toolCallSyntax') ?? 'M6';
+				const toolCallPattern = new RegExp(toolCallSyntax, 'i');
 
 				const escapeChar = /^\s*\//i;
 
@@ -173,6 +204,11 @@ export function activate(context: vscode.ExtensionContext) {
 				for (var i = 0; i < document.lineCount; i++) {
 					var data = document.lineAt(i).text.split(';');
 					var line = document.lineAt(i);
+					var pline : vscode.TextLine | undefined;
+
+					if (i > 0) {
+						pline = document.lineAt(i - 1);
+					}
 
 					var pgmLine: string = data[0];
 					var pgmComment: string | undefined;
@@ -665,7 +701,9 @@ function updateDiagnostics(document: vscode.TextDocument, collection: vscode.Dia
 			const tPattern = /(^|\s)T\s*([0-9]+|=\s*(".+"))/i;
 
 			const customToolCallPattern = /(L9920|L9923|L9930)/i;
-			const toolCallPattern = /(L300|M6)/i;
+
+			var toolCallSyntax = config.get<string>('toolCallSyntax') ?? 'M6';
+			const toolCallPattern = new RegExp(toolCallSyntax, 'i');
 
 			const toolDefPattern = /L9927/i;
 
