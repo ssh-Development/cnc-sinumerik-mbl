@@ -49,3 +49,7 @@ REP für Wiederholwerkzeuge hinzugefügt!
 ### 0.0.12
 
 Command Runden hinzugefügt!
+
+### 0.0.19
+
+Hover hinzgefügt!

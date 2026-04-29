@@ -204,7 +204,7 @@ export function activate(context: vscode.ExtensionContext) {
 				for (var i = 0; i < document.lineCount; i++) {
 					var data = document.lineAt(i).text.split(';');
 					var line = document.lineAt(i);
-					var pline : vscode.TextLine | undefined;
+					var pline: vscode.TextLine | undefined;
 
 					if (i > 0) {
 						pline = document.lineAt(i - 1);
@@ -656,6 +656,250 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	}));
+
+	context.subscriptions.push(vscode.languages.registerHoverProvider('sinumerikone', {
+		provideHover
+	}));
+
+	context.subscriptions.push(vscode.languages.registerHoverProvider('sinumerik', {
+		provideHover
+	}));
+
+	const cyclePattern = /CYCLE([0-9]+)\s*\((.+)\)/i;
+	function provideHover(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken) {
+		const line = document.lineAt(position.line);
+
+		var match = cyclePattern.exec(line.text);
+		if (match) {
+			const lineToPosition = line.text.substring(0, position.character);
+			let parameterIndex = 0;
+			if (lineToPosition.includes('(')) {
+				parameterIndex = lineToPosition.split(',').length;
+			}
+
+			switch (match[1]) {
+				case "81":
+					switch (parameterIndex) {
+						case 0:
+							return {
+								contents: ['Bohren']
+							};
+						case 1:
+							return {
+								contents: ['Rückzugsebene RTP (abs)']
+							};
+						case 2:
+							return {
+								contents: ['Referenzebene RFP (abs)']
+							};
+						case 3:
+							return {
+								contents: ['Sicherheitsabstand SDIS (ohne Vorzeichen)']
+							};
+						case 4:
+							return {
+								contents: ['Endbohrtiefe DP (abs)']
+							};
+						case 5:
+							return {
+								contents: ['Endbohrtiefe DPR (ink)']
+							};
+						default:
+							return;
+					}
+
+				case "82":
+					switch (parameterIndex) {
+						case 0:
+							return {
+								contents: ['Bohren mit Verweilzeit']
+							};
+						case 1:
+							return {
+								contents: ['Rückzugsebene RTP (abs)']
+							};
+						case 2:
+							return {
+								contents: ['Referenzebene RFP (abs)']
+							};
+						case 3:
+							return {
+								contents: ['Sicherheitsabstand SDIS (ohne Vorzeichen)']
+							};
+						case 4:
+							return {
+								contents: ['Endbohrtiefe DP (abs)']
+							};
+						case 5:
+							return {
+								contents: ['Endbohrtiefe DPR (ink)']
+							};
+						case 6:
+							return {
+								contents: ['Verweilzeit DT (s)']
+							};
+						default:
+							return;
+					}
+
+				case "84":
+					switch (parameterIndex) {
+						case 0:
+							return {
+								contents: ['Gewindebohren ohne Ausgleichsfutter']
+							};
+						case 1:
+							return {
+								contents: ['Rückzugsebene RTP (abs)']
+							};
+						case 2:
+							return {
+								contents: ['Referenzebene RFP (abs)']
+							};
+						case 3:
+							return {
+								contents: ['Sicherheitsabstand SDIS (ohne Vorzeichen)']
+							};
+						case 4:
+							return {
+								contents: ['Endbohrtiefe DP (abs)']
+							};
+						case 5:
+							return {
+								contents: ['Endbohrtiefe DPR (ink)']
+							};
+						case 6:
+							return {
+								contents: ['Verweilzeit DT (s)']
+							};
+						case 7:
+							return {
+								contents: ['Drehrichtung nach Zyklusende']
+							};
+						case 8:
+							return {
+								contents: ['Gewindegröße nur für "ISO metrisch" (Steigung wird intern während der Laufzeitberechnet)']
+							};
+						case 9:
+							return {
+								contents: ['Gewindesteigung P']
+							};
+						case 10:
+							return {
+								contents: ['Spindelposition für orientierten Spindelstop']
+							};
+						case 11:
+							return {
+								contents: ['Spindeldrehzahl für Gewindebohren S']
+							};
+						case 12:
+							return {
+								contents: ['Spindeldrehzahl für Rückzug SR']
+							};
+						case 13:
+							return {
+								contents: ['Bohrachse',
+									'0 = 3. Geometrieachse',
+									'1 = 1. Geometrieachse',
+									'2 = 2. Geometrieachse',
+									'≥ 3 = 3. Geometrieachse']
+							};
+						case 14:
+							return {
+								contents: ['Maßeinheit der Gewindesteigung',
+									'0 = Steigung in mm',
+									'1 = Steigung in mm',
+									'2 = Steigung in TPI',
+									'3 = Steigung in inch',
+									'4 = MODUL']
+							};
+						case 15:
+							return {
+								contents: ['Technologie']
+							};
+						default:
+							return;
+					}
+
+				case "800":
+					switch (parameterIndex) {
+						case 0:
+							return {
+								contents: ['Schwenken']
+							};
+						case 1:
+							return {
+								contents: ['Freifahrmodus', '0 = kein Freifahren', '1 = Freifahren Maschinenachse Z', '2 = Freifahren Maschinenachse Z und danach XY', '3 = reserviert', '4 = Freifahren in Werkzeugrichtung maximal', '5 = Freifahren in Werkzeugrichtung inkrementell']
+							};
+						case 2:
+							return {
+								contents: ['Name Schwenkdatensatz', '"" (kein Name) wenn nur 1 Schwenkdatensatz vorhanden', '"0" Abwahl Schwenkdatensatz (Löschen der Schwenkframes)']
+							};
+						case 3:
+							return {
+								contents: ['Status Transformationen']
+							};
+						case 4:
+							return {
+								contents: ['Schwenkmodus _MODE', 'Auswertung der Schwenkwinkel und der Schwenkreihenfolge (bitcodiert!)']
+							};
+						case 5:
+							return {
+								contents: ['Bezugspunkt X vor der Drehung']
+							};
+						case 6:
+							return {
+								contents: ['Bezugspunkt Y vor der Drehung']
+							};
+						case 7:
+							return {
+								contents: ['Bezugspunkt Z vor der Drehung']
+							};
+						case 8:
+							return {
+								contents: ['1. Drehung laut Einstellung in Parameter _MODE']
+							};
+						case 9:
+							return {
+								contents: ['2. Drehung laut Einstellung in Parameter _MODE']
+							};
+						case 10:
+							return {
+								contents: ['3. Drehung laut Einstellung in Parameter _MODE']
+							};
+						case 11:
+							return {
+								contents: ['Bezugspunkt X nach der Drehung']
+							};
+						case 12:
+							return {
+								contents: ['Bezugspunkt Y nach der Drehung']
+							};
+						case 13:
+							return {
+								contents: ['Bezugspunkt Z nach der Drehung']
+							};
+						case 14:
+							return {
+								contents: ['Verfahrbewegung der Rundachsen auslösen (default = -1!)', '-1 = auf kleineren Wert der Rundachse 1 oder 2 positionieren', '+1 = auf größeren Wert der Rundachse 1 oder 2 positionieren', '0 = Schwenken nein (nur Schwenkframe berechnen)']
+							};
+						case 15:
+							return {
+								contents: ['Wert (ink) Freifahren in Werkzeugrichtung inkrementell']
+							};
+						case 16:
+							return {
+								contents: ['Displaymode', '0 = Kompatibilität, es bleibt die vor Zyklusaufruf wirksame Ebene aktiv', '1 = G17 (nur im Zyklus aktiv)', '2 = G18 (nur im Zyklus aktiv)', '3 = G19 (nur im Zyklus aktiv)']
+							};
+
+						default:
+							return;
+					}
+				default:
+					break;
+			}
+		}
+	}
 
 	diagnosticCollection = vscode.languages.createDiagnosticCollection('go');
 	context.subscriptions.push(diagnosticCollection);
